@@ -31,14 +31,17 @@ def run():
     W = tf.Variable(tf.zeros([28*28,total_class]), tf.float32)
     b = tf.Variable(tf.zeros([total_class]), tf.float32)
     
+    sess = tf.InteractiveSession() #initialize the tensorflow Session
+    sess.run(tf.global_variables_initializer()) #initialize all variables
     
-    sess = tf.InteractiveSession()
-    #initialize all variables
-    sess.run(tf.global_variables_initializer())
-    
-    predict = tf.matmul(X, W) + b
+    #both the cost function technique could be used
+    predict = tf.nn.softmax(tf.matmul(X, W) + b) #this two technique a little slower
     cost_func = tf.reduce_mean( \
-       tf.nn.softmax_cross_entropy_with_logits(labels=Y, logits= predict) )
+           -tf.reduce_sum(Y*tf.log(predict), reduction_indices=[1]) )
+    #predict = tf.matmul(X, W) + b
+#    cost_func = tf.reduce_mean( \
+#       tf.nn.softmax_cross_entropy_with_logits(labels=Y, logits= predict) )
+    
     train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cost_func)
     for i in range(0, 50000, 50): #mini batch Gradient Descent
         batch_train_data = train_x[i:i+50]
